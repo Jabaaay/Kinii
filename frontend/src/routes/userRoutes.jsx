@@ -9,12 +9,17 @@ import Login from '../session/login';
 import Page from '../landingPage';
 import Admin from '../adminSession/adminLogin';
 import Calendar from '../components/Calendar';
+import SignUp from '../session/signUp';
+import ForgotPass from '../session/forgotPassword';
+
 
 
 const UserRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Page />} />
+      <Route path='/sign-up' element={<SignUp />}/>
+      <Route path='/reset-password' element={<ForgotPass />}/>
       <Route path='/adminLogin' element={<Admin />}/>
       <Route path="/login" element={<Login />} /> 
       <Route path="/dashboard" element={<Dashboard />} />  

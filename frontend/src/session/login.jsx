@@ -15,7 +15,6 @@ function Logins() {
   const [recaptchaValue, setRecaptchaValue] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
-  // Initialize the Google API client once component is mounted
   useEffect(() => {
     const loadGoogleAPI = () => {
       window.gapi.load("client:auth2", initClient);
@@ -24,7 +23,6 @@ function Logins() {
     if (window.gapi) {
       loadGoogleAPI();
     } else {
-      // Google API script not loaded yet, add event listener to check when it's ready
       const script = document.createElement('script');
       script.src = "https://apis.google.com/js/api.js";
       script.onload = loadGoogleAPI;
@@ -34,8 +32,8 @@ function Logins() {
 
   const initClient = () => {
     window.gapi.client.init({
-      apiKey: 'AIzaSyA_viGY4c2LAW1tXrIxGI5KDohhibrH52E', // Replace with your API key
-      clientId: clientId, // Use your client ID
+      apiKey: 'AIzaSyA_viGY4c2LAW1tXrIxGI5KDohhibrH52E',
+      clientId: clientId,
       scope: "https://www.googleapis.com/auth/calendar",
     }).then(() => {
       const authInstance = window.gapi.auth2.getAuthInstance();
@@ -46,12 +44,9 @@ function Logins() {
   };
 
   const handleSuccess = async (response) => {
-    console.log("Login successful", response);
     try {
       sessionStorage.clear();
       const decoded = jwtDecode(response.credential);
-      console.log(decoded);
-
       const res = await fetch('http://localhost:3001/google-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,7 +64,6 @@ function Logins() {
       if (res.ok) {
         setToken(data.token);
         localStorage.setItem('token', data.token);
-        console.log('User stored successfully:', data);
         setUserInfo(data.user);
         sessionStorage.setItem('userInfo', JSON.stringify(data.user));
 
@@ -101,6 +95,15 @@ function Logins() {
 
   const handleRecaptchaChange = (value) => {
     setRecaptchaValue(value);
+  };
+
+  // Added navigation handlers
+  const goToForgotPassword = () => {
+    navigate('/reset-password');
+  };
+
+  const goToSignUp = () => {
+    navigate('/sign-up');
   };
 
   return (
@@ -136,6 +139,9 @@ function Logins() {
               type="password"
               placeholder="Password"
             />
+            <p className="pa" onClick={goToForgotPassword}>
+              Forgot Password
+            </p>
             
             <ReCAPTCHA
               sitekey={RECAPTCHA_SITE_KEY}
@@ -148,9 +154,10 @@ function Logins() {
             >
               Log In
             </motion.button>
-
-            <hr />
-
+            <p className="sign-up">
+              Don't Have an Account Yet? 
+              <a href="#" onClick={goToSignUp}> Sign Up</a>
+            </p>
             <motion.div
               id='signIn'
               initial={{ opacity: 0, y: 30 }}
@@ -172,7 +179,7 @@ function Logins() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              <a href="" onClick={loginAdmin}>Admin</a>
+              <a href="#" onClick={loginAdmin}>Admin</a>
             </motion.button>
           </div>
         </motion.div>

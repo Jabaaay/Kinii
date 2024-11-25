@@ -1187,3 +1187,27 @@ background-color: #e8e8e8;
 .event-content {
   margin: 1px 0;
 }
+
+.sign-up
+{
+  text-align: left;
+  font-size: smaller;
+}
+
+.pa 
+{
+  text-align: right;
+  font-size: smaller; 
+  cursor: pointer;
+}
+.sign-up a
+{
+  text-decoration: none;
+  color: #000C6C;
+}
+
+.input-align
+{
+display: flex;
+gap: 10px;
+}
