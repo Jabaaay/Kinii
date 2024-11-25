@@ -8,6 +8,7 @@ import Edit_Profile from '../edit_profile';
 import Login from '../session/login';
 import Page from '../landingPage';
 import Admin from '../adminSession/adminLogin';
+import Calendar from '../components/Calendar';
 
 
 const UserRoutes = () => {
@@ -21,6 +22,7 @@ const UserRoutes = () => {
       <Route path="/status" element={<Status />} /> 
       <Route path="/profile" element={<Profile />} /> 
       <Route path="/edit_profile" element={<Edit_Profile />} /> 
+      <Route path="/calendar" element={<Calendar />} /> 
     </Routes>
   );
 };

@@ -38,10 +38,12 @@ app.use(logoutRoutes);
 // Import routes
 import studentRoute from './routes/studentApp.js';
 import adminRoute from './routes/adminRoutes.js';
+import adminRoutes from './routes/admin.js';
 
 // Use routes
 app.use('/', studentRoute);
 app.use('/admin', adminRoute);
+app.use('/admin', adminRoutes);
 
 app.use('/uploads', express.static('uploads'));
 
