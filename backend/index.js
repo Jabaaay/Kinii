@@ -6,6 +6,17 @@ import session from "express-session";
 
 dotenv.config();
 
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+  console.error('Required environment variables are missing');
+  process.exit(1);
+}
+
+// Log the environment variables (remove in production)
+console.log('Email Config:', {
+  user: process.env.EMAIL_USER,
+  passLength: process.env.EMAIL_PASSWORD?.length
+});
+
 const app = express();
 const PORT = process.env.PORT;
 
@@ -39,11 +50,13 @@ app.use(logoutRoutes);
 import studentRoute from './routes/studentApp.js';
 import adminRoute from './routes/adminRoutes.js';
 import adminRoutes from './routes/admin.js';
+import authRoutes from './routes/authRoutes.js';
 
 // Use routes
 app.use('/', studentRoute);
-app.use('/admin', adminRoute);
+app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/staff', adminRoute);
 
 app.use('/uploads', express.static('uploads'));
 

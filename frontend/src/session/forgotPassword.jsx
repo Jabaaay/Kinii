@@ -1,16 +1,50 @@
-import { GoogleLogin } from "@react-oauth/google";
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-
-import { motion } from "framer-motion"; // Importing motion from framer-motion
+import { motion } from "framer-motion";
 import logo from '../assets/1.png';
+import Swal from 'sweetalert2';
 
-
-function Logins() {
+function ForgotPassword() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const goToLogIn = () => {
-    alert('Please check your email for confirmation');
-    navigate('/login');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3001/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Verification Code Sent!',
+          text: 'Please check your email for the verification code.',
+        });
+        // Store email in sessionStorage for verification step
+        sessionStorage.setItem('resetEmail', email);
+        navigate('/verify-code');
+      } else {
+        throw new Error(data.message || 'Failed to send verification code');
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,30 +65,35 @@ function Logins() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className='h1'>Reset Password</h1>
-          <div className="input">
-            <br />
-
-
-<input type="text"  className="in" placeholder="Institutional Email" required/>
-
-<br />
-
-            
-
-            <motion.button
-              className='log'
-              onClick={goToLogIn}
-            >
-              Reset Password
-            </motion.button>
-
-
-          </div>
+          <h1 className='h1'>Forgot Password</h1>
+          <p className="text-center text-gray-600 mb-4">
+            Enter your email address to receive a verification code
+          </p>
+          <form onSubmit={handleSubmit}>
+            <div className="input">
+              <input
+                type="email"
+                className="in"
+                placeholder="Enter Your Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <motion.button
+                className='log'
+                type="submit"
+                disabled={isLoading}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {isLoading ? 'Sending...' : 'Send Verification Code'}
+              </motion.button>
+            </div>
+          </form>
         </motion.div>
       </div>
     </>
   );
 }
 
-export default Logins;
+export default ForgotPassword;

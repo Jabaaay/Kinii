@@ -13,10 +13,25 @@ const staffSchema = new Schema({
     required: true, 
     unique: true 
 },
+  position: 
+  { 
+    type: String, 
+    required: true 
+},
   role: 
   { 
     type: String, 
     default: 'Staff' },
+  lastInviteSent: {
+    type: Date,
+    default: Date.now
+  },
+  inviteCount: {
+    type: Number,
+    default: 1
+  },
+  resetPasswordCode: String,
+  resetPasswordExpires: Date
 });
 
 const Staff = mongoose.model('Staff', staffSchema);

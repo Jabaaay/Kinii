@@ -57,7 +57,7 @@ function EditProfileF() {
     </tr>
     <tr className='tr2'>
       <td className='td2'>Role</td>
-      <td className='td2'><input type="text" className='inp' placeholder='Admin' readOnly/></td>
+      <td className='td2'><input type="text" className='inp' placeholder='Admin'/></td>
     </tr>
     <tr>
       <button className='editBtn' onClick={() => handleNavigation('/adminProfile')}>Save Changes</button>

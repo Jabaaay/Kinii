@@ -1,0 +1,149 @@
+
+
+/* Card styles */
+.card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header styles */
+.h1 {
+  color: #333;
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+/* Input container styles */
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-align {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Input field styles */
+.in {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+}
+
+.in:focus {
+  outline: none;
+  border-color: #4A90E2;
+}
+
+/* Password input container */
+.password-input-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Error styles */
+.error {
+  border-color: #ff4d4f !important;
+}
+
+.error-message {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+  padding-left: 4px;
+}
+
+/* Select dropdown styles */
+select.in {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+/* Button styles */
+.log {
+  width: 100%;
+  padding: 12px;
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.log:hover {
+  background-color: #357ABD;
+}
+
+/* Sign up link styles */
+.sign-up {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 14px;
+  color: #666;
+}
+
+.sign-up a {
+  color: #4A90E2;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.sign-up a:hover {
+  text-decoration: underline;
+}
+
+/* Error message specific styles */
+input[type="password"] + .error-message {
+  position: static;
+  display: block;
+  margin-top: 4px;
+  color: #ff4d4f;
+}
+
+/* Input field with error state */
+.in.error {
+  border-color: #ff4d4f;
+  background-color: #fff1f0;
+}
+
+/* Logo styles */
+.logo {
+  text-align: center;
+  padding: 1rem;
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
+}
+
+/* Responsive styles */
+@media (max-width: 480px) {
+  .card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .h1 {
+    font-size: 22px;
+  }
+} 

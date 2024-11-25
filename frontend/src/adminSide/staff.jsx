@@ -15,31 +15,49 @@ function Status() {
         return;
       }
 
+      if (!fullName || !email || !position) {
+        setMessage('Please fill in all required fields');
+        return;
+      }
+
+      const requestData = {
+        name: fullName.trim(),
+        email: email.trim(),
+        position: position,
+        generateAdminLink: true
+      };
+
+      console.log('Sending data:', requestData);
+
       const response = await fetch('http://localhost:3001/admin/invite-staff', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: fullName,
-          email: email,
-          position: position
-        }),
+        body: JSON.stringify(requestData),
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to send invite');
+        throw new Error(data.message || 'Failed to send invite');
       }
 
-      const data = await response.json();
-      setMessage('Invitation sent successfully! Staff member will receive an email.');
+      setMessage('Invitation sent successfully with admin access link');
       setFullName('');
       setEmail('');
       setPosition('');
     } catch (error) {
+      console.error('Error details:', error);
       setMessage(error.message || 'Something went wrong');
     }
+  };
+
+  const inputStyle = {
+    border: '1px solid', // Border color
+    padding: '10px', // Padding
+    width: '100%', // Full width
+    marginBottom: '10px', // Space between inputs
   };
 
   return (
@@ -67,14 +85,18 @@ function Status() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <input
-                type="text"
-                className="inp1"
-                placeholder="Position"
+              <select
+                style={inputStyle} // Apply the same style to the dropdown
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
                 required
-              />
+              >
+                <option value="">Select Position</option>
+                <option value="Staff">Staff</option>
+                <option value="Admin Clerk 1">Admin Clerk 1</option>
+                <option value="Admin Clerk 2">Admin Clerk 2</option>
+                <option value="Admin Clerk 3">Admin Clerk 3</option>
+              </select>
               <br /><br /><br />
               <button className="con" onClick={handleSubmit}>
                 Send Invites
