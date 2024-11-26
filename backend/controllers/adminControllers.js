@@ -57,25 +57,37 @@ const getAnnouncements = async (req, res) => {
 };
 
 const handleGoogleLogin = async (req, res) => {
-  const { googleId, name, email, picture, position} = req.body;
+  const { googleId, name, email, picture, position } = req.body;
 
   try {
     let user = await Admin.findOne({ googleId });
 
     if (!user) {
       // Create a new user if they don't exist
-      user = new Admin({ googleId, name, email, picture, position });
-      await user.save();
-    } else {
-      // Update the existing user
-      user.position = position || user.position;
-
+      user = new Admin({ 
+        googleId, 
+        name, 
+        email, 
+        picture, 
+        position,
+        role: 'Admin'
+      });
       await user.save();
     }
 
-    res.status(200).json({ user });
+    // Generate JWT token here if you want to use token-based auth
+    res.status(200).json({ 
+      success: true,
+      user,
+      message: 'Login successful'
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Google login error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Server error during login',
+      message: error.message 
+    });
   }
 };
 

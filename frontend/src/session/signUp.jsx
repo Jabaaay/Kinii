@@ -9,11 +9,11 @@ import './signUp.css';
 function Logins() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    position: ''
+    role: ''
   });
   const [errors, setErrors] = useState({
     password: '',
@@ -63,43 +63,50 @@ function Logins() {
     e.preventDefault();
     if (validatePasswords()) {
       try {
-        // Check if position is Staff
-        if (formData.position === 'Staff') {
-          const response = await axios.post('http://localhost:3001/api/staff/register', {
-            fullName: formData.fullName,
-            email: formData.email,
-            password: formData.password,
-            position: formData.position
-          });
+        let response;
+        const userData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role
+        };
 
-          if (response.data.success) {
-            // Store the token in localStorage
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('staffId', response.data.staffId);
-            
-            // Show success message based on whether it was an update or new registration
-            const message = response.data.isUpdate 
-              ? 'Account updated successfully!' 
-              : 'Account created successfully!';
-            
-            // You can use a toast notification here if you have one
-            alert(message); // Replace with your preferred notification method
-            
-            // Redirect to admin dashboard
-            navigate('/admindashboard');
-          }
+        // Choose the endpoint based on the selected role
+        if (formData.role === 'Staff' || formData.role === 'Admin') {
+          response = await axios.post('http://localhost:3001/api/auth/register-admin', {
+            ...userData,
+            position: '', // Add empty position for admin/staff
+            picture: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+          });
         } else {
-          // Handle other user types (Student, etc.)
-          setErrors(prev => ({
-            ...prev,
-            submit: 'This registration is only for staff members.'
-          }));
+          response = await axios.post('http://localhost:3001/api/auth/register', userData);
+        }
+
+        if (response.data.success) {
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('userId', response.data.userId);
+          
+          alert(response.data.message);
+          
+          switch(formData.role) {
+            case 'Staff':
+            case 'Admin':
+              alert('Please login to access your account');
+              navigate('/adminLogin');
+              break;
+            case 'Student':
+              navigate('/login');
+              break;
+            default:
+              navigate('/login');
+          }
         }
       } catch (error) {
         console.error('Registration error:', error);
+        const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
         setErrors(prev => ({
           ...prev,
-          submit: error.response?.data?.message || 'Registration failed. Please try again.'
+          submit: errorMessage
         }));
       }
     }
@@ -135,9 +142,9 @@ function Logins() {
                 <motion.input
                   className='in'
                   type="text"
-                  name="fullName"
+                  name="name"
                   placeholder="Full Name"
-                  value={formData.fullName}
+                  value={formData.name}
                   onChange={handleInputChange}
                   required
                 />
@@ -184,16 +191,14 @@ function Logins() {
                 <motion.select
                   className='in'
                   required
-                  name="position"
-                  value={formData.position}
+                  name="role"
+                  value={formData.role}
                   onChange={handleInputChange}
                 >
-                  <option value="" disabled>Select Position</option>
-                  <option value="Staff">Staff</option>
+                  <option value="" disabled>Select Role</option>
                   <option value="Student">Student</option>
-                  <option value="Admin Clerk 1">Admin Clerk 1</option>
-                  <option value="Admin Clerk 2">Admin Clerk 2</option>
-                  <option value="Admin Clerk 3">Admin Clerk 3</option>
+                  <option value="Staff">Staff</option>
+                  <option value="Admin">Admin</option>
                 </motion.select>
               </div>
 

@@ -7,23 +7,20 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
   try {
-    const { fullName, email, password, position } = req.body;
+    const { fullName, email, password, role } = req.body;
 
-    // Check if staff already exists
     const existingStaff = await Staff.findOne({ email });
     
     if (existingStaff) {
-      // Update existing staff information
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
       
       existingStaff.fullName = fullName;
       existingStaff.password = hashedPassword;
-      existingStaff.position = position;
+      existingStaff.role = role;
       
       await existingStaff.save();
 
-      // Create JWT token for existing staff
       const token = jwt.sign(
         { id: existingStaff._id, role: existingStaff.role },
         process.env.JWT_SECRET,
@@ -39,7 +36,6 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // If staff doesn't exist, create new staff member
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -47,13 +43,11 @@ router.post('/register', async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      position,
-      role: 'Staff'
+      role
     });
 
     await newStaff.save();
 
-    // Create JWT token for new staff
     const token = jwt.sign(
       { id: newStaff._id, role: newStaff.role },
       process.env.JWT_SECRET,

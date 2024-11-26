@@ -138,33 +138,70 @@ router.post('/export-to-sheets', async (req, res) => {
     console.log('Starting export process...');
     
     const credentials = await loadCredentials();
-    console.log('Credentials loaded successfully');
+    console.log('Credentials loaded:', {
+      clientEmail: credentials.client_email,
+      hasPrivateKey: !!credentials.private_key
+    });
 
     const auth = new google.auth.GoogleAuth({
       credentials,
       scopes: [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive.file'
-      ]
+      ],
+      timeout: 30000 // Increased timeout to 30 seconds
     });
 
-    const sheets = google.sheets({ version: 'v4', auth });
-    const drive = google.drive({ version: 'v3', auth });
-    console.log('APIs initialized');
+    console.log('Creating API clients...');
+    const sheets = google.sheets({ 
+      version: 'v4', 
+      auth,
+      timeout: 30000
+    });
+    const drive = google.drive({ 
+      version: 'v3', 
+      auth,
+      timeout: 30000
+    });
+    console.log('Sheets API client created');
+    console.log('Drive API client created');
 
-    // Create spreadsheet
+    // Verify data before creating spreadsheet
+    if (!req.body.data || !Array.isArray(req.body.data)) {
+      throw new Error('Invalid data format received');
+    }
+
+    console.log('Creating spreadsheet...');
     const spreadsheet = await sheets.spreadsheets.create({
       requestBody: {
         properties: {
           title: `Appointments Report ${new Date().toLocaleDateString()}`,
-        }
+        },
+        sheets: [{
+          properties: {
+            title: 'Sheet1',
+            gridProperties: {
+              rowCount: Math.max(req.body.data.length + 1, 100),
+              columnCount: 6
+            }
+          }
+        }]
+      },
+      auth: auth
+    });
+
+    // After creating the spreadsheet, set permissions
+    await drive.permissions.create({
+      fileId: spreadsheet.data.spreadsheetId,
+      requestBody: {
+        role: 'writer',
+        type: 'anyone'
       }
     });
 
     const spreadsheetId = spreadsheet.data.spreadsheetId;
     console.log('Spreadsheet created:', spreadsheetId);
 
-    // Add headers and data
     const headers = [['Name', 'College', 'Appointment Type', 'Purpose', 'Date', 'Time']];
     const values = [...headers, ...req.body.data];
 
@@ -174,37 +211,27 @@ router.post('/export-to-sheets', async (req, res) => {
       valueInputOption: 'RAW',
       requestBody: { values },
     });
-    console.log('Data updated in spreadsheet');
-
-    // Set public access permissions
-    try {
-      await drive.permissions.create({
-        fileId: spreadsheetId,
-        requestBody: {
-          role: 'reader',
-          type: 'anyone'
-        }
-      });
-      console.log('Public access granted');
-    } catch (permissionError) {
-      console.error('Permission setting failed:', permissionError);
-      // Continue even if permission setting fails
-    }
 
     const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit?usp=sharing`;
-    console.log('Export successful, returning URL:', spreadsheetUrl);
+    console.log('Export successful:', spreadsheetUrl);
 
     return res.json({
       success: true,
       spreadsheetUrl,
-      message: 'Spreadsheet created and shared successfully'
+      message: 'Spreadsheet created successfully'
     });
 
   } catch (error) {
-    console.error('Google Sheets API Error:', error);
+    console.error('Export error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+    
     return res.status(500).json({ 
       error: 'Failed to export to Google Sheets',
-      details: error.message 
+      details: error.message,
+      code: error.code
     });
   }
 });

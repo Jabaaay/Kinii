@@ -1,47 +1,68 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from '../assets/1.png';
 import Swal from 'sweetalert2';
 
-function ResetPassword() {
+function ChangePassword() {
   const navigate = useNavigate();
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    newPassword: '',
+    confirmPassword: ''
+  });
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const email = sessionStorage.getItem('resetEmail');
-    const isVerified = sessionStorage.getItem('codeVerified');
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validatePassword = () => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     
-    if (!email || !isVerified) {
-      navigate('/forgot-password');
+    if (!passwordRegex.test(formData.newPassword)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Password',
+        text: 'Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character',
+      });
+      return false;
     }
-  }, [navigate]);
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Password Mismatch',
+        text: 'New passwords do not match',
+      });
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Passwords do not match!',
-      });
+    if (!validatePassword()) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/auth/reset-password', {
+      const email = sessionStorage.getItem('resetEmail');
+      const response = await fetch('http://localhost:3001/api/auth/change-password', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          email: sessionStorage.getItem('resetEmail'),
-          password
+          email,
+          newPassword: formData.newPassword
         }),
       });
 
@@ -51,12 +72,13 @@ function ResetPassword() {
         Swal.fire({
           icon: 'success',
           title: 'Success!',
-          text: 'Your password has been reset successfully.',
+          text: 'Your password has been changed successfully.',
         });
         sessionStorage.removeItem('resetEmail');
+        sessionStorage.removeItem('codeVerified');
         navigate('/login');
       } else {
-        throw new Error(data.message || 'Failed to reset password');
+        throw new Error(data.message || 'Failed to change password');
       }
     } catch (error) {
       Swal.fire({
@@ -87,23 +109,25 @@ function ResetPassword() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className='h1'>Reset Password</h1>
+          <h1 className='h1'>Change Password</h1>
           <form onSubmit={handleSubmit}>
             <div className="input">
               <input
                 type="password"
                 className="in"
+                name="newPassword"
                 placeholder="New Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.newPassword}
+                onChange={handleInputChange}
                 required
               />
               <input
                 type="password"
                 className="in"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                name="confirmPassword"
+                placeholder="Confirm New Password"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
                 required
               />
               <motion.button
@@ -113,7 +137,11 @@ function ResetPassword() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {isLoading ? 'Resetting...' : 'Reset Password'}
+                {isLoading ? (
+                  <div className="loader"></div>
+                ) : (
+                  'Change Password'
+                )}
               </motion.button>
             </div>
           </form>
@@ -123,4 +151,4 @@ function ResetPassword() {
   );
 }
 
-export default ResetPassword; 
+export default ChangePassword; 

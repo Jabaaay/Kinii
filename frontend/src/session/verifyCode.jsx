@@ -23,7 +23,7 @@ function VerifyCode() {
 
     try {
       const email = sessionStorage.getItem('resetEmail');
-      const response = await fetch('http://localhost:3001/auth/verify-code', {
+      const response = await fetch('http://localhost:3001/api/auth/verify-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ function VerifyCode() {
           title: 'Code Verified!',
           text: 'Please enter your new password.',
         });
-        navigate('/reset-password', { replace: true });
+        navigate('/change-password', { replace: true });
       } else {
         throw new Error(data.message || 'Invalid verification code');
       }

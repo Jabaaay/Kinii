@@ -14,7 +14,7 @@ function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/auth/forgot-password', {
+      const response = await fetch('http://localhost:3001/api/auth/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,7 +30,6 @@ function ForgotPassword() {
           title: 'Verification Code Sent!',
           text: 'Please check your email for the verification code.',
         });
-        // Store email in sessionStorage for verification step
         sessionStorage.setItem('resetEmail', email);
         navigate('/verify-code');
       } else {

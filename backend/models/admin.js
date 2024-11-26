@@ -16,10 +16,15 @@ const adminSchema = new Schema({
     required: true,
     unique: true
   },
+  password: {
+    type: String,
+    required: true
+  },
   picture: String,
   position: String,
   role: {
     type: String,
+    enum: ['Admin', 'Staff'],
     default: 'Admin'
   },
   resetPasswordCode: String,

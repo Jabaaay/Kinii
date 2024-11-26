@@ -3,10 +3,8 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import AdminRoutes from './routes/adminRoutes';
 import UserRoutes from './routes/userRoutes';
 import VerifyCode from './session/verifyCode';
-import ResetPassword from './session/resetPassword';
 import ForgotPassword from './session/forgotPassword';
-
-
+import ChangePassword from './session/changePassword';
 
 function App() {
   return (
@@ -16,7 +14,7 @@ function App() {
       <Routes>
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-code" element={<VerifyCode />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
     </Router>
   );

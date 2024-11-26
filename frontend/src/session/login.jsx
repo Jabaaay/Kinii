@@ -14,6 +14,10 @@ function Logins() {
   const [userInfo, setUserInfo] = useState(null);
   const [recaptchaValue, setRecaptchaValue] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
 
   useEffect(() => {
     const loadGoogleAPI = () => {
@@ -99,11 +103,58 @@ function Logins() {
 
   // Added navigation handlers
   const goToForgotPassword = () => {
-    navigate('/reset-password');
+    navigate('/forgot-password');
   };
 
   const goToSignUp = () => {
     navigate('/sign-up');
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleManualLogin = async (e) => {
+    e.preventDefault();
+    
+    if (!recaptchaValue) {
+      alert("Please complete the reCAPTCHA verification.");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.userId);
+        
+        if (data.user.role === 'Student') {
+          navigate('/dashboard');
+        } else if (data.user.role === 'Admin' || data.user.role === 'Staff') {
+          navigate('/admin-dashboard');
+        }
+      } else {
+        alert(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed. Please try again.');
+    }
   };
 
   return (
@@ -125,63 +176,72 @@ function Logins() {
           transition={{ duration: 0.5 }}
         >
           <h1 className='h1'>Log In</h1>
-          <div className="input">
-            <label>Username:</label>
-            <motion.input
-              className='in'
-              type="text"
-              placeholder="Username"
-              required
-            />
-            <label>Password:</label>
-            <motion.input
-              className='in'
-              type="password"
-              placeholder="Password"
-            />
-            <p className="pa" onClick={goToForgotPassword}>
-              Forgot Password
-            </p>
-            
-            <ReCAPTCHA
-              sitekey={RECAPTCHA_SITE_KEY}
-              onChange={handleRecaptchaChange}
-              className='recaptcha'
-            />
-            <motion.button
-              className='log'
-              onClick={handleLogin}
-            >
-              Log In
-            </motion.button>
-            <p className="sign-up">
-              Don't Have an Account Yet? 
-              <a href="#" onClick={goToSignUp}> Sign Up</a>
-            </p>
-            <motion.div
-              id='signIn'
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <GoogleLogin 
-                clientId={clientId}
-                buttonText="Login with Google"
-                onSuccess={handleSuccess}
-                onFailure={handleFailure}
-                cookiePolicy={'single-host-origin'}
-                isSignedIn={true}
+          <form onSubmit={handleManualLogin}>
+            <div className="input">
+              <label>Email:</label>
+              <motion.input
+                className='in'
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
               />
-            </motion.div>
+              <label>Password:</label>
+              <motion.input
+                className='in'
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+              <p className="pa" onClick={goToForgotPassword}>
+                Forgot Password
+              </p>
+              
+              <ReCAPTCHA
+                sitekey={RECAPTCHA_SITE_KEY}
+                onChange={handleRecaptchaChange}
+                className='recaptcha'
+              />
+              <motion.button
+                type="submit"
+                className='log'
+              >
+                Log In
+              </motion.button>
+              <p className="sign-up">
+                Don't Have an Account Yet? 
+                <a href="#" onClick={goToSignUp}> Sign Up</a>
+              </p>
+              <motion.div
+                id='signIn'
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <GoogleLogin 
+                  clientId={clientId}
+                  buttonText="Login with Google"
+                  onSuccess={handleSuccess}
+                  onFailure={handleFailure}
+                  cookiePolicy={'single-host-origin'}
+                  isSignedIn={true}
+                />
+              </motion.div>
 
-            <motion.button
-              className="log-btn"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <a href="#" onClick={loginAdmin}>Admin</a>
-            </motion.button>
-          </div>
+              <motion.button
+                className="log-btn"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <a href="#" onClick={loginAdmin}>Admin</a>
+              </motion.button>
+            </div>
+          </form>
         </motion.div>
       </div>
     </>

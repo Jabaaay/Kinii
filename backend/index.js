@@ -34,9 +34,14 @@ app.use(cors(corsOptions)); // Apply CORS middleware here
 app.use(express.json()); // Middleware to parse JSON payloads
 
 app.use(session({
-    secret: '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',
+    secret: process.env.JWT_SECRET || '2271f86972e5f403a57dce39775e05a2643c481949697ca7ddb84b3fa7bcbe6b40a5065b0a1b52731b38ace2f736df341f5e4adff82af1494e284f91fafff9c1',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
 }));
 
 // Import the logout routes
@@ -49,14 +54,12 @@ app.use(logoutRoutes);
 // Import routes
 import studentRoute from './routes/studentApp.js';
 import adminRoute from './routes/adminRoutes.js';
-import adminRoutes from './routes/admin.js';
 import authRoutes from './routes/authRoutes.js';
 
-// Use routes
-app.use('/', studentRoute);
-app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-app.use('/staff', adminRoute);
+// Use routes with proper prefixes
+app.use('/api', studentRoute);
+app.use('/admin', adminRoute);
+app.use('/api/auth', authRoutes);
 
 app.use('/uploads', express.static('uploads'));
 
