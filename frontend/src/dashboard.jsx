@@ -198,9 +198,19 @@ function Dashboard() {
                 <td className='td1'>
     <>
     <div className="act">
-        <MdEdit className='edit' onClick={() => handleEdit(appointment)} />
-        <MdDelete className='del' onClick={() => handleDelete(appointment._id)} />
-            </div>
+        <button 
+            className='edit-btn'
+            onClick={() => handleEdit(appointment)}
+        >
+            <MdEdit /> Edit
+        </button>
+        <button 
+            className='delete-btn'
+            onClick={() => handleDelete(appointment._id)}
+        >
+            <MdDelete /> Delete
+        </button>
+    </div>
     </>
 
                                             </td>

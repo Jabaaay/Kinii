@@ -74,7 +74,7 @@ const data02 = Object.keys(aggregatedData)
 
 
 
-    const colors = ['#09b393', '#f5e642', '#4275f5', '#00ff0d', '#f542c8', '#f54242'];
+    const colors = ['#4361ee', '#3a0ca3', '#7209b7', '#f72585', '#4cc9f0', '#4895ef'];
 
     return (
         <>
@@ -136,7 +136,14 @@ const data02 = Object.keys(aggregatedData)
                                                     <YAxis />
                                                     <Tooltip />
                                                     <Legend />
-                                                    <Line type="monotone" dataKey="Appointments" stroke="#8884d8" activeDot={{ r: 5 }} />
+                                                    <Line 
+                                                        type="monotone" 
+                                                        dataKey="Appointments" 
+                                                        stroke="#4361ee" 
+                                                        strokeWidth={2}
+                                                        dot={{ r: 4 }}
+                                                        activeDot={{ r: 8 }}
+                                                    />
                                                 </LineChart>
                                             </ResponsiveContainer>
                                         </div>
