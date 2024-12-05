@@ -85,14 +85,6 @@ function Logins() {
     console.log("Login failed", error);
   };
 
-  const handleLogin = () => {
-    if (recaptchaValue) {
-      navigate('/dashboard');
-    } else {
-      alert("Please complete the reCAPTCHA verification.");
-    }
-  };
-
   const loginAdmin = () => {
     navigate('/adminLogin');
   };
@@ -119,35 +111,28 @@ function Logins() {
 
   const handleManualLogin = async (e) => {
     e.preventDefault();
-    
+  
     if (!recaptchaValue) {
       alert("Please complete the reCAPTCHA verification.");
       return;
     }
-
+  
     try {
       const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.userId);
-        
-        if (data.user.role === 'Student') {
-          navigate('/dashboard');
-        } else if (data.user.role === 'Admin' || data.user.role === 'Staff') {
-          navigate('/admin-dashboard');
-        }
+        sessionStorage.setItem('userInfo', JSON.stringify(data.user)); // Store user info in session storage
+  
+      
+        navigate('/profile');
       } else {
         alert(data.message || 'Login failed');
       }
@@ -156,6 +141,9 @@ function Logins() {
       alert('Login failed. Please try again.');
     }
   };
+  
+  
+  
 
   return (
     <>
@@ -167,6 +155,7 @@ function Logins() {
             whileHover={{ scale: 1.1 }}
           />
         </div>
+        
       </motion.nav>
       <div className="bg">
         <motion.div
@@ -175,12 +164,11 @@ function Logins() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className='h1'>Log In</h1>
+          <h1 className="heading">Log In</h1>
           <form onSubmit={handleManualLogin}>
-            <div className="input">
-              <label>Email:</label>
+         
               <motion.input
-                className='in'
+              
                 type="email"
                 name="email"
                 placeholder="Email"
@@ -188,9 +176,8 @@ function Logins() {
                 onChange={handleInputChange}
                 required
               />
-              <label>Password:</label>
               <motion.input
-                className='in'
+             
                 type="password"
                 name="password"
                 placeholder="Password"
@@ -209,14 +196,23 @@ function Logins() {
               />
               <motion.button
                 type="submit"
-                className='log'
+                className='con'
               >
                 Log In
               </motion.button>
-              <p className="sign-up">
+
+              <p className="sign">
                 Don't Have an Account Yet? 
                 <a href="#" onClick={goToSignUp}> Sign Up</a>
               </p>
+
+            
+              <div class="divider">
+                <p className="or">or</p>
+              </div>
+
+
+            
               <motion.div
                 id='signIn'
                 initial={{ opacity: 0, y: 30 }}
@@ -240,10 +236,12 @@ function Logins() {
               >
                 <a href="#" onClick={loginAdmin}>Admin</a>
               </motion.button>
-            </div>
+            
           </form>
         </motion.div>
       </div>
+
+
     </>
   );
 }

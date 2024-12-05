@@ -7,10 +7,10 @@ import Profile from '../profile';
 import Edit_Profile from '../edit_profile';
 import Login from '../session/login';
 import Page from '../landingPage';
-import Admin from '../adminSession/adminLogin';
 import Calendar from '../components/Calendar';
 import SignUp from '../session/signUp';
 import ForgotPass from '../session/forgotPassword';
+import Staff from '../staffSide/staffLogin';
 
 
 
@@ -20,7 +20,7 @@ const UserRoutes = () => {
       <Route path="/" element={<Page />} />
       <Route path='/sign-up' element={<SignUp />}/>
       <Route path='/reset-password' element={<ForgotPass />}/>
-      <Route path='/adminLogin' element={<Admin />}/>
+      <Route path='/staffLogin' element={<Staff />}/>
       <Route path="/login" element={<Login />} /> 
       <Route path="/dashboard" element={<Dashboard />} />  
       <Route path="/history" element={<History />} />  

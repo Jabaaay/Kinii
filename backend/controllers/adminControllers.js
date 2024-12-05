@@ -64,30 +64,17 @@ const handleGoogleLogin = async (req, res) => {
 
     if (!user) {
       // Create a new user if they don't exist
-      user = new Admin({ 
-        googleId, 
-        name, 
-        email, 
-        picture, 
-        position,
-        role: 'Admin'
-      });
+      user = new Admin({ googleId, name, email, picture, position });
+      await user.save();
+    } else {
+      // Update the existing user
+      user.position = position || user.position;
       await user.save();
     }
 
-    // Generate JWT token here if you want to use token-based auth
-    res.status(200).json({ 
-      success: true,
-      user,
-      message: 'Login successful'
-    });
+    res.status(200).json({ user });
   } catch (error) {
-    console.error('Google login error:', error);
-    res.status(500).json({ 
-      success: false,
-      error: 'Server error during login',
-      message: error.message 
-    });
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -146,8 +133,78 @@ const addStaff = async (req, res) => {
   }
 };
 
+const deleteNotification = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Pangita ug i-delete ang notification base sa ID
+    const deletedNotification = await Concerns.findByIdAndDelete(id);
+
+    if (!deletedNotification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+
+    res.status(200).json({ message: 'Notification deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    res.status(500).json({ message: 'Server error' });
+  };
+}
+
+  const deleteAnn = async (req, res) => {
+    try{
+        const announcement = await Announcement.findByIdAndDelete(req.params.id)
+        if(!announcement){
+            return res.status(404).json({message: "Announcement not Found"});
+        }
+
+        res.status(200).json({message: "Announcement has been Deleted!"})
+    }catch(error){
+        console.log(error)
+        res.status(500).json({message: "Failed to delete announcement"});
+    }
+
+};
+
+const updateAnnouncement = async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { header, content } = req.body;
+      const fileUrl = req.file ? req.file.path : null;
+
+      const updatedData = {
+          header,
+          content,
+      };
+      if (fileUrl) updatedData.fileUrl = fileUrl;
+
+      const updatedAnnouncement = await Announcement.findByIdAndUpdate(
+          id,
+          updatedData,
+          { new: true }
+      );
+
+      if (!updatedAnnouncement) {
+          return res.status(404).json({ message: 'Announcement not found' });
+      }
+
+      res.status(200).json(updatedAnnouncement);
+  } catch (error) {
+      res.status(500).json({ message: 'Error updating announcement', error });
+  }
+};
+
+const getStaff = async (req, res) => {
+  try {
+    const staffList = await Staff.find(); // Adjust based on your ORM
+    res.status(200).json(staffList);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch staff', error });
+  }
+};
 
 
 
 
-export {getHistory, confirmAppointment, createAnnouncement, getAnnouncements, handleGoogleLogin, addStaff, updateProfile, getNotifications};
+
+export {getHistory, confirmAppointment, createAnnouncement, getAnnouncements, handleGoogleLogin, addStaff, updateProfile, getNotifications, deleteNotification, deleteAnn, updateAnnouncement, getStaff};

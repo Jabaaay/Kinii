@@ -9,10 +9,13 @@ import Panel from "../adminSide/adminPanel";
 import AdminProfile from "../adminSide/adminProfile";
 import AdminEditProfile from "../adminSide/editProfile";
 import Notifications from "../adminSide/notification";
+import Admin from '../adminSession/adminLogin';
+
 
 const AdminRoutes = () => {
   return (
     <Routes>
+      <Route path='/adminLogin' element={<Admin />}/>
       <Route path="/adminPanel" element={<Panel />} /> 
       <Route path="/editProfile" element={<AdminEditProfile />} />
       <Route path="/adminDashboard" element={<AdminPanel />} /> 

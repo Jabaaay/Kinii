@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from '../assets/1.png';
 import Swal from 'sweetalert2';
+import { PiEyeLight, PiEyeSlash } from "react-icons/pi";
 
 function ChangePassword() {
   const navigate = useNavigate();
@@ -11,12 +12,23 @@ function ChangePassword() {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState({
+    newPassword: false,
+    confirmPassword: false
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPassword(prev => ({
+      ...prev,
+      [field]: !prev[field]
     }));
   };
 
@@ -112,24 +124,40 @@ function ChangePassword() {
           <h1 className='h1'>Change Password</h1>
           <form onSubmit={handleSubmit}>
             <div className="input">
-              <input
-                type="password"
-                className="in"
-                name="newPassword"
-                placeholder="New Password"
-                value={formData.newPassword}
-                onChange={handleInputChange}
-                required
-              />
-              <input
-                type="password"
-                className="in"
-                name="confirmPassword"
-                placeholder="Confirm New Password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-              />
+              <div className="password-field">
+                <input
+                  type={showPassword.newPassword ? "text" : "password"}
+                  className="in"
+                  name="newPassword"
+                  placeholder="New Password"
+                  value={formData.newPassword}
+                  onChange={handleInputChange}
+                  required
+                />
+                <span
+                  className="eye-icon"
+                  onClick={() => togglePasswordVisibility('newPassword')}
+                >
+                  {showPassword.newPassword ? <PiEyeSlash /> : <PiEyeLight />}
+                </span>
+              </div>
+              <div className="password-field">
+                <input
+                  type={showPassword.confirmPassword ? "text" : "password"}
+                  className="in"
+                  name="confirmPassword"
+                  placeholder="Confirm New Password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                />
+                <span
+                  className="eye-icon"
+                  onClick={() => togglePasswordVisibility('confirmPassword')}
+                >
+                  {showPassword.confirmPassword ? <PiEyeSlash /> : <PiEyeLight />}
+                </span>
+              </div>
               <motion.button
                 className='log'
                 type="submit"
@@ -151,4 +179,4 @@ function ChangePassword() {
   );
 }
 
-export default ChangePassword; 
+export default ChangePassword;

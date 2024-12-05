@@ -5,12 +5,15 @@ import UserRoutes from './routes/userRoutes';
 import VerifyCode from './session/verifyCode';
 import ForgotPassword from './session/forgotPassword';
 import ChangePassword from './session/changePassword';
+import StaffRoutes from './routes/staffRoutes';
+
 
 function App() {
   return (
     <Router>
       <UserRoutes />
       <AdminRoutes />
+      <StaffRoutes />
       <Routes>
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-code" element={<VerifyCode />} />

@@ -1,5 +1,5 @@
 import express from "express";
-import {getHistory, confirmAppointment, createAnnouncement, getAnnouncements, handleGoogleLogin, addStaff, updateProfile, getNotifications} from '../controllers/adminControllers.js'
+import {getHistory, confirmAppointment, createAnnouncement, getAnnouncements, handleGoogleLogin, addStaff, updateProfile, getNotifications, deleteNotification, deleteAnn, updateAnnouncement, getStaff} from '../controllers/adminControllers.js'
 import multer from "multer";
 import { google } from 'googleapis';
 import { readFile } from 'fs/promises';
@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import StudentApp from '../models/studentApp.js';
 import { transporter } from '../config/nodemailer.js';
-import User from '../models/users.js';
+import Staff from "../models/staffModels.js";
 
 const router = express.Router();
 
@@ -132,51 +132,77 @@ router.post('/add', addStaff);
 
 router.get('/contact', getNotifications);
 
+router.delete('/contact/:id', deleteNotification);
+
+router.delete('/announcements/:id', deleteAnn);
+
+router.put('/announcements/:id', upload.single('file'), updateAnnouncement);
+
 router.post('/invite-staff', async (req, res) => {
   try {
-    const { name, email } = req.body;
-    console.log('Attempting to send email to:', email);
-    
-    let existingUser = await User.findOne({ email });
-    
-    if (!existingUser) {
-      existingUser = new User({
-        name,
-        email,
-        role: 'Staff',
-        lastInviteSent: new Date(),
-        inviteCount: 1
-      });
-      await existingUser.save();
+    const { fullName, email, position } = req.body;
+
+    // Validate input
+    if (!fullName || !email || !position) {
+      return res.status(400).json({ message: 'All fields are required: fullName, email, position' });
     }
 
+    const emailRegex = /^[a-zA-Z0-9._-]+@student\.buksu\.edu\.ph$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email. Use an email ending with @student.buksu.edu.ph.' });
+    }
+
+    console.log(`Checking if email exists: ${email}`);
+
+    // Check if the email already exists in the database
+    const existingUser = await Staff.findOne({ email });
+
+    if (existingUser) {
+      // If email exists, return an error response
+      return res.status(409).json({ message: 'This email is already registered as staff.' });
+    }
+
+    // Create a new staff entry
+    const newStaff = new Staff({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      role: 'Staff',
+      position: position.trim(),
+      lastInviteSent: new Date(),
+      inviteCount: 1
+    });
+
+    await newStaff.save();
+    console.log(`New staff member added: ${email}`);
+
+    // Email options
     const mailOptions = {
       from: {
-        name: 'University Guidance',
+        fullName: 'University Guidance',
         address: 'universityguidance.noreply@gmail.com'
       },
       to: email,
       subject: 'Staff Invitation',
       html: `
-        <h1>Welcome ${name}!</h1>
+        <h1>Welcome ${fullName}!</h1>
         <p>You have been invited to join as a staff member.</p>
         <p>Please click the link below to complete your registration:</p>
         <a href="${process.env.FRONTEND_URL}/sign-up">Complete Registration</a>
-        ${existingUser.inviteCount > 1 ? '<p><i>Note: This is a reminder of your previous invitation.</i></p>' : ''}
       `
     };
 
+    // Send email
     await transporter.sendMail(mailOptions);
-    res.json({ 
-      message: existingUser.inviteCount > 1 ? 'Invitation resent successfully' : 'Invitation sent successfully',
-      staff: existingUser 
-    });
+    res.json({ message: 'Invitation sent successfully', staff: newStaff });
+    console.log(`Email sent to: ${email}`);
 
   } catch (error) {
     console.error('Error in invite-staff:', error);
     res.status(500).json({ message: 'Failed to send invitation', error: error.message });
   }
 });
+
+
 
 // Test email route
 router.get('/test-email', async (req, res) => {
@@ -194,5 +220,7 @@ router.get('/test-email', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.get('/staff', getStaff);
 
 export default router;

@@ -78,7 +78,7 @@ nav
 
 .card
 {
-  margin: 175px auto;
+  margin: 120px auto;
   width: 400px;
   box-sizing: border-box;
   padding: 10px;
@@ -113,7 +113,7 @@ h1
  
   padding: 10px;
 }
-.h1
+.heading
 {
   text-align: center;
 }
@@ -861,7 +861,7 @@ font-weight: bolder;
 .recaptcha
 {
   width: 100%;
-  margin-bottom: -25px;
+  margin: 10px 0;
 }
 .ad
 {
@@ -1390,3 +1390,141 @@ gap: 10px;
   transform: translateY(-2px);
   opacity: 0.9;
 }
+
+.notif-card
+{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+.notif-card p
+{
+  font-size: 30px;
+  font-weight: bolder;
+}
+.notif-btn button
+{
+  color: white;
+  background-color: #007bff;
+  border: none;
+  margin: 5px;
+  padding: 5px;
+}
+
+.notif-btn button:nth-child(odd)
+{
+  color: white;
+  background-color: #464646;
+  border: none;
+  margin: 5px;
+  padding: 5px;
+}
+
+.notif-btn :hover
+{
+  opacity: 0.7;
+}
+
+.notif-name
+{
+  width: 20%;
+}
+.notif-msg
+{
+  width: 60%;
+}
+.notif-date
+{
+  width: 15%;
+  text-align: right;
+}
+.notif-del
+{
+  font-size: larger;
+}
+.t-announcement
+{
+  width: 100%;
+  border-collapse: collapse;
+}
+.td1
+{
+
+  width: 10%;
+}
+
+.staffTable
+{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modal-btn
+{
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.cancel
+{
+  width: 100%;
+}
+
+.password-field
+{
+  display: flex;
+  align-items: center;
+}
+
+.eye-icon
+{
+  margin-left: -35px;
+  font-size: large;
+}
+.sign 
+{
+  margin: 10px 0;
+  text-align: center;
+  font-size: smaller;
+}
+.sign a 
+{
+  text-decoration: none;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #555;
+  margin: 10px 0;
+  gap: 3px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ccc;
+}
+
+.heading::before,
+.heading::after
+{
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ccc;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 10px 0;
+  gap: 10px;
+  font-size: 25px;
+}
+
+
+

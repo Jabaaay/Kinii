@@ -1,24 +1,55 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2';
 
 function ProfileF() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
+  const [position, setPosition] = useState("");
   const [editable, setEditable] = useState(false); // State to toggle edit mode
-  const [position, setCourse] = useState(""); // For holding course information
+
+
   useEffect(() => {
-    // Retrieve user data from sessionStorage
-    const storedUser = sessionStorage.getItem('userInfo');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUserData(parsedUser);
-      setCourse(parsedUser.position || ""); // Initialize course with stored value
-    } else {
-      // If no user data, navigate to the login page
-      navigate('/login');
-    }
+    const loadUserData = () => {
+      const storedUserData = sessionStorage.getItem('userInfo');
+      if (storedUserData) {
+        const user = JSON.parse(storedUserData);
+        setUserData(user);
+        setPosition(user.position || "");
+      } else {
+        // Fetch from API if no data found in storage
+        const fetchUserData = async () => {
+          const token = localStorage.getItem('token');
+          if (!token) return navigate('/login');
+  
+          try {
+            const res = await fetch('http://localhost:3001/admin/profile', {
+              method: 'GET',
+              headers: { Authorization: `Bearer ${token}` },
+            });
+  
+            const data = await res.json();
+            if (res.ok) {
+              setUserData(data.user);
+              setPosition(data.user.position || "");
+            } else {
+              Swal.fire('Error', data.message || 'Failed to fetch user data.', 'error');
+              navigate('/login');
+            }
+          } catch (error) {
+            console.error('Fetch error:', error);
+            Swal.fire('Error', 'An error occurred while fetching user data.', 'error');
+            navigate('/login');
+          }
+        };
+  
+        fetchUserData();
+      }
+    };
+  
+    loadUserData();
   }, [navigate]);
+  
 
   const handleSave = async () => {
     if (position) {
@@ -72,6 +103,8 @@ function ProfileF() {
     setEditable(true); // Toggle to edit mode
   };
 
+  if (!userData) return <p>Loading...</p>;
+
   return (
     <>
       <h1>Account Overview</h1>
@@ -113,7 +146,7 @@ function ProfileF() {
 
                 <select name="" id="" className='dropPos'
                   value={editable ? position : userData?.position}
-                  onChange={(e) => setCourse(e.target.value)}
+                  onChange={(e) => setPosition(e.target.value)}
                   readOnly={!editable}>
                   <option value="">Select Position</option>
                   <option value="Staff">Staff</option>
@@ -142,6 +175,7 @@ function ProfileF() {
         </div>
       </div>
     </>
+   
   );
 }
 

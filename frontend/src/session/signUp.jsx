@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // Importing motion from framer-motion
+import { PiEyeLight, PiEyeSlash } from "react-icons/pi";
 import logo from '../assets/1.png';
 import { useState } from 'react';
 import axios from 'axios'; // Make sure to install axios
+import Swal from 'sweetalert2'; // Import SweetAlert
 import './signUp.css';
-
 
 function Logins() {
   const navigate = useNavigate();
@@ -14,6 +15,10 @@ function Logins() {
     password: '',
     confirmPassword: '',
     role: ''
+  });
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    password: false,
+    confirmPassword: false
   });
   const [errors, setErrors] = useState({
     password: '',
@@ -27,7 +32,7 @@ function Logins() {
       ...prev,
       [name]: value
     }));
-    
+
     // Clear errors when user starts typing
     if (name === 'password' || name === 'confirmPassword') {
       setErrors(prev => ({
@@ -37,13 +42,20 @@ function Logins() {
     }
   };
 
+  const togglePasswordVisibility = (field) => {
+    setPasswordVisibility(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
   const validatePasswords = () => {
     let isValid = true;
     const newErrors = {};
 
     // Password strength validation
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    
+
     if (!passwordRegex.test(formData.password)) {
       newErrors.password = 'Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character';
       isValid = false;
@@ -59,8 +71,25 @@ function Logins() {
     return isValid;
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@student\.buksu\.edu\.ph$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newErrors = {};
+
+    // Validate email domain
+    if (!validateEmail(formData.email)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Email',
+        text: 'Only @student.buksu.edu.ph emails are allowed.'
+      });
+      return;
+    }
+
     if (validatePasswords()) {
       try {
         let response;
@@ -85,13 +114,20 @@ function Logins() {
         if (response.data.success) {
           localStorage.setItem('token', response.data.token);
           localStorage.setItem('userId', response.data.userId);
-          
-          alert(response.data.message);
-          
-          switch(formData.role) {
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Registration Successful',
+            text: response.data.message
+          });
+
+          switch (formData.role) {
             case 'Staff':
+              Swal.fire('Please login to access your account');
+              navigate('/staffLogin');
+              break;
             case 'Admin':
-              alert('Please login to access your account');
+              Swal.fire('Please login to access your account');
               navigate('/adminLogin');
               break;
             case 'Student':
@@ -104,10 +140,11 @@ function Logins() {
       } catch (error) {
         console.error('Registration error:', error);
         const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
-        setErrors(prev => ({
-          ...prev,
-          submit: errorMessage
-        }));
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: errorMessage
+        });
       }
     }
   };
@@ -134,11 +171,10 @@ function Logins() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className='h1'>Create Account</h1>
+          <h1 className='heading'>Create Account</h1>
           {errors.submit && <div className="error-message submit-error">{errors.submit}</div>}
           <form onSubmit={handleSubmit}>
             <div className="input">
-              <div className="input-align">
                 <motion.input
                   className='in'
                   type="text"
@@ -157,35 +193,38 @@ function Logins() {
                   onChange={handleInputChange}
                   required
                 />
-              </div>
 
-              <div className="input-align">
-                <div className="password-input-container">
+                <div className="password-field">
                   <motion.input
                     className={`in ${errors.password ? 'error' : ''}`}
-                    type="password"
+                    type={passwordVisibility.password ? "text" : "password"}
                     name="password"
                     placeholder="Enter Password"
                     value={formData.password}
                     onChange={handleInputChange}
                     required
                   />
+                  <span onClick={() => togglePasswordVisibility('password')} className="eye-icon">
+                    {passwordVisibility.password ? <PiEyeSlash /> : <PiEyeLight />}
+                  </span>
                   {errors.password && <span className="error-message">{errors.password}</span>}
                 </div>
 
-                <div className="password-input-container">
+                <div className="password-field">
                   <motion.input
                     className={`in ${errors.confirmPassword ? 'error' : ''}`}
-                    type="password"
+                    type={passwordVisibility.confirmPassword ? "text" : "password"}
                     name="confirmPassword"
                     placeholder="Re Enter Password"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     required
                   />
+                  <span onClick={() => togglePasswordVisibility('confirmPassword')} className="eye-icon">
+                    {passwordVisibility.confirmPassword ? <PiEyeSlash /> : <PiEyeLight />}
+                  </span>
                   {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
                 </div>
-              </div>
 
               <div className="input-align">
                 <motion.select
@@ -201,16 +240,17 @@ function Logins() {
                   <option value="Admin">Admin</option>
                 </motion.select>
               </div>
+              <br />
 
-              <motion.button
-                className='log'
+              <button
+                className='con'
                 type="submit"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Create Account
-              </motion.button>
-              <p className="sign-up">
+              </button>
+              <p className="sign">
                 Already Have an Account?
                 <a href="#" onClick={goToLogIn}> Sign In</a>
               </p>

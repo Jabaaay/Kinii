@@ -54,12 +54,14 @@ app.use(logoutRoutes);
 // Import routes
 import studentRoute from './routes/studentApp.js';
 import adminRoute from './routes/adminRoutes.js';
+import staffRoute from './routes/routesStaff.js';
 import authRoutes from './routes/authRoutes.js';
 
 // Use routes with proper prefixes
 app.use('/api', studentRoute);
 app.use('/admin', adminRoute);
 app.use('/api/auth', authRoutes);
+app.use('/staff', staffRoute);
 
 app.use('/uploads', express.static('uploads'));
 
